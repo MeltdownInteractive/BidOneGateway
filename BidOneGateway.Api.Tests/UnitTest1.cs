@@ -1,4 +1,4 @@
-namespace BidOneGateway.Tests;
+namespace BidOneGateway.Api.Tests;
 
 public class Tests
 {

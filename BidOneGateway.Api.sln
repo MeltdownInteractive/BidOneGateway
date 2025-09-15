@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BidOneGateway.Api", "BidOneGateway.Api\BidOneGateway.Api.csproj", "{7203B027-1140-4DA4-8014-FB1730E1B43D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BidOneGateway.Tests", "BidOneGateway.Tests\BidOneGateway.Tests.csproj", "{CC74C699-1C58-4059-93EC-55EDF04FAA72}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BidOneGateway.Api.Tests", "BidOneGateway.Api.Tests\BidOneGateway.Api.Tests.csproj", "{CC74C699-1C58-4059-93EC-55EDF04FAA72}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BidOneGateway.Application", "BidOneGateway.Application\BidOneGateway.Application.csproj", "{D99FC5C6-6F95-4FF8-B922-1E8E3153C428}"
 EndProject
