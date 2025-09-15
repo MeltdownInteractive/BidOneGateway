@@ -4,6 +4,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BidOneGateway.Api", "BidOne
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BidOneGateway.Tests", "BidOneGateway.Tests\BidOneGateway.Tests.csproj", "{CC74C699-1C58-4059-93EC-55EDF04FAA72}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BidOneGateway.Application", "BidOneGateway.Application\BidOneGateway.Application.csproj", "{D99FC5C6-6F95-4FF8-B922-1E8E3153C428}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BidOneGateway.Domain", "BidOneGateway.Domain\BidOneGateway.Domain.csproj", "{9EBE83B1-3464-4E44-8249-07D76E955E0D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BidOneGateway.Infrastructure", "BidOneGateway.Infrastructure\BidOneGateway.Infrastructure.csproj", "{FC908B5D-C688-4190-ADAB-5BD2F90EFE69}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +24,17 @@ Global
 		{CC74C699-1C58-4059-93EC-55EDF04FAA72}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CC74C699-1C58-4059-93EC-55EDF04FAA72}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CC74C699-1C58-4059-93EC-55EDF04FAA72}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D99FC5C6-6F95-4FF8-B922-1E8E3153C428}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D99FC5C6-6F95-4FF8-B922-1E8E3153C428}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D99FC5C6-6F95-4FF8-B922-1E8E3153C428}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D99FC5C6-6F95-4FF8-B922-1E8E3153C428}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9EBE83B1-3464-4E44-8249-07D76E955E0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EBE83B1-3464-4E44-8249-07D76E955E0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EBE83B1-3464-4E44-8249-07D76E955E0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EBE83B1-3464-4E44-8249-07D76E955E0D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FC908B5D-C688-4190-ADAB-5BD2F90EFE69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC908B5D-C688-4190-ADAB-5BD2F90EFE69}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC908B5D-C688-4190-ADAB-5BD2F90EFE69}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FC908B5D-C688-4190-ADAB-5BD2F90EFE69}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
