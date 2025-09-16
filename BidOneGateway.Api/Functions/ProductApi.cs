@@ -1,4 +1,6 @@
-﻿using BidOneGateway.Application.Interfaces;
+﻿using System.Collections.Concurrent;
+using BidOneGateway.Api.Helpers;
+using BidOneGateway.Application.Interfaces;
 using BidOneGateway.Domain.Models.Dto;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +11,8 @@ namespace BidOneGateway.Api.Functions;
 
 public class ProductApi(IProductOrchestrationService orchestrationService, ILogger<ProductApi> logger)
 {
+    private static readonly ConcurrentDictionary<string, IActionResult> IdempotencyCache = new();
+    
     [Function("GetProductsV1")]
     public async Task<IActionResult> GetProducts(
         [HttpTrigger(AuthorizationLevel.Function, "get", Route = "v1/products")] HttpRequest req)
@@ -30,13 +34,33 @@ public class ProductApi(IProductOrchestrationService orchestrationService, ILogg
     }
     
     [Function("CreateOrUpdateProductV1")]
-    public IActionResult CreateOrUpdateProduct(
+    public async Task<IActionResult> CreateOrUpdateProduct(
         [HttpTrigger(AuthorizationLevel.Function, "post", Route = "v1/products")] HttpRequest req)
     {
-        // TODO: Implement idempotency logic using Idempotency-Key header.
-        // TODO: Call an orchestration service method to create/update the product in the ERP.
         logger.LogInformation("V1/products POST request received.");
-        return new CreatedResult("/v1/products/123", new { message = "Product created/updated successfully." });
+        
+        // Ensure the stream is seekable for generating the idempotency signature 
+        req.EnableBuffering();
+        
+        var idempotencySignature = await IdempotencyHelper.GenerateIdempotencySignature(req, "POST", "/v1/products");
+        if (idempotencySignature is null)
+        {
+            return new BadRequestObjectResult("Idempotency-Key header is required.");
+        }
+        
+        if (IdempotencyCache.TryGetValue(idempotencySignature, out var cachedResult))
+        {
+            logger.LogWarning("Idempotency signature {Signature} found in cache. Returning original response.", idempotencySignature);
+            return cachedResult;
+        }
+        
+        logger.LogInformation("Processing new request for idempotency signature {Signature}.", idempotencySignature);
+        
+        var result = new CreatedResult("/v1/products/456", new { message = "Product created successfully." });
+        
+        IdempotencyCache.TryAdd(idempotencySignature, result);
+
+        return result;
     }
 
     [Function("GetProductByIdV1")]
