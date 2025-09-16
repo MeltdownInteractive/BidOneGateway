@@ -1,0 +1,24 @@
+Design & Architecture
+1. Your approach to backward-compatible contract evolution for APIs and/or events. 
+
+My primary principle for contract evolution is to always favor additive, non-breaking changes to protect downstream consumers. For REST APIs, this means adding new optional fields to response bodies, which existing clients will safely ignore. Breaking changes, such as renaming a field or changing a data type, should be introduced under a new version, typically through URI versioning (e.g., /v2/products). For asynchronous events, the tolerant reader pattern is essential, consumers should be designed to ignore fields they don't understand. Event schemas should also be versioned, allowing consumers to handle different event structures gracefully over time.
+
+2. Retries, timeouts, and circuit breakers: your defaults and how you set budgets.
+
+My default resilience strategy starts with a conservative "time budget" that is less than the client's timeout. A typical starting point is a 5-second timeout per upstream call and a maximum of 3 retry attempts. The retries are implemented with exponential backoff plus jitter to avoid thundering herd scenarios where multiple service instances retry in unison. A circuit breaker would be configured to open after 5-10 consecutive failures and remain open for 30 seconds to give the upstream service time to recover. The final values are tuned based on the specific upstream's SLA and performance characteristics, always ensuring the total potential delay fits within the overall request budget.
+
+3. Idempotency strategies for writes and replay handling.
+
+My standard strategy for idempotency on write operations (POST/PUT) is to require a client-generated Idempotency-Key in the HTTP header. The gateway then creates a unique request signature by combining this key, the operation type, and a hash of the request body. Before processing, the gateway checks a distributed cache (like Redis) for this signature. If the signature exists, the gateway returns the cached response from the original successful request without re-executing the operation. If the signature is not found, the gateway processes the request, and upon success, it stores the response in the cache with a reasonable TTL, ensuring that any replayed requests within that window are safely handled.
+
+4. Observability: logs/metrics/traces you’d emit to debug slow/failed integrations.
+
+To ensure robust observability, I would implement the three pillars. Logs would be structured (JSON) and include a CorrelationID that flows across all service calls, detailing the latency, status code, and endpoint for every upstream request. Metrics would be emitted for each endpoint and upstream dependency using the RED method (Rate, Errors, Duration), as well as specific metrics for retry attempts and circuit breaker state changes. Finally, I would use Distributed Tracing via OpenTelemetry to capture the entire lifecycle of a request, providing a visual graph that pinpoints which specific upstream call is the bottleneck in a slow or failed integration.
+
+5. Security controls you’d apply (authN/Z at the edge, input validation, rate limiting, config/secrets, SSRF/misconfig hardening).
+
+As the first line of defense, the gateway would handle all public-facing security controls. AuthN/Z would be enforced at the edge by validating JWTs and rejecting any unauthenticated requests. I would implement strict input validation on all incoming DTOs to prevent malformed data and injection attacks. To protect upstream systems, rate limiting would be applied on a per-client or per-IP basis. Secrets and configuration would be managed exclusively through a service like Azure Key Vault, accessed via a Managed Identity, ensuring no credentials are ever in code or config files. To prevent SSRF, all upstream service URLs would be loaded from this secure configuration, never constructed from user-provided input.
+
+6. Your preferred framework/tooling and why for this use case.
+
+For this integration gateway, my preferred framework is C# with ASP.NET Core (running either on its own or within the Azure Functions Isolated Worker model). It is highly performant and exceptionally well-suited for I/O-bound operations common in a gateway. The primary reason for this choice is its mature and robust ecosystem, specifically HttpClientFactory for centrally managing HTTP clients and preventing socket exhaustion, and the Polly library for declaratively implementing sophisticated resilience policies like retries and circuit breakers. This combination, along with excellent tooling in JetBrains Rider and first-class support for containerization and observability standards like OpenTelemetry, makes it an ideal choice for building reliable, maintainable integrations.
