@@ -18,6 +18,8 @@ StubErpGetProducts: [GET] http://localhost:7026/api/erp/products
 StubWarehouseGetStock: [GET] http://localhost:7026/api/warehouse/stock/{productId:int}
 
 I was unable to implement the full solution, as I ran out of time after spending nearly two full days on this.
+Given the scope, I focused my time on what I believed were the most critical, high-risk areas: establishing a solid, testable architecture and implementing the complex orchestration logic with robust Polly policies. 
+I left the simpler PUT and DELETE endpoints as stubs to respect the timebox, but the pattern for implementing them is clearly established.
 
 Further improvements I'd make..
 
