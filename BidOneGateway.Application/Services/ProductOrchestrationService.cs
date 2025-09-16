@@ -1,5 +1,6 @@
 ﻿using BidOneGateway.Application.Interfaces;
 using BidOneGateway.Domain.Models.Dto;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 namespace BidOneGateway.Application.Services;
@@ -7,11 +8,23 @@ namespace BidOneGateway.Application.Services;
 public class ProductOrchestrationService(
     IErpClient erpClient,
     IWarehouseClient warehouseClient,
-    ILogger<ProductOrchestrationService> logger)
+    ILogger<ProductOrchestrationService> logger,
+    IMemoryCache memoryCache)
     : IProductOrchestrationService
 {
-    public async Task<IEnumerable<ProductDto>> GetMergedProductsAsync()
+    public async Task<IEnumerable<ProductDto>?> GetMergedProductsAsync()
     {
+        const string cacheKey = "AllProducts";
+        logger.LogInformation("Checking cache for all products.");
+
+        // Try to get from cache first
+        if (memoryCache.TryGetValue(cacheKey, out IEnumerable<ProductDto>? cachedProducts))
+        {
+            logger.LogInformation("Cache hit for all products. Returning cached data.");
+            return cachedProducts;
+        }
+        
+        logger.LogInformation("Cache miss. Starting product merge orchestration.");
         logger.LogInformation("Starting product merge orchestration.");
         
         var erpProducts = await erpClient.GetProductsAsync();
@@ -45,7 +58,15 @@ public class ProductOrchestrationService(
         });
         
         logger.LogInformation("Successfully merged all product and stock data.");
-        return mergedProducts;
+        logger.LogInformation("Storing merged products in cache.");
+        
+        var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromMinutes(5));
+        var mergedProductsAsync = mergedProducts as ProductDto[] ?? mergedProducts.ToArray();
+        memoryCache.Set(cacheKey, mergedProductsAsync, cacheEntryOptions);
+        
+        logger.LogInformation("Successfully stored merged products in cache.");
+        
+        return mergedProductsAsync;
     }
     
     public async Task<ProductDto?> GetMergedProductByIdAsync(int id)

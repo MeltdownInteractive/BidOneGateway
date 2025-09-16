@@ -1,4 +1,5 @@
 ﻿using BidOneGateway.Application.Interfaces;
+using BidOneGateway.Domain.Models.Dto;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;

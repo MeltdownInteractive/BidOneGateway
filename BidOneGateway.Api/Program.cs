@@ -18,6 +18,8 @@ var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
     .ConfigureServices((context, services) =>
     {
+        services.AddMemoryCache();
+        
         services.Configure<UpstreamServicesSettings>(
             context.Configuration.GetSection(UpstreamServicesSettings.SectionName)
         );
