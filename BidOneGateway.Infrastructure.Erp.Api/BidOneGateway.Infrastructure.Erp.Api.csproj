@@ -18,6 +18,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\BidOneGateway.Application\BidOneGateway.Application.csproj" />
       <ProjectReference Include="..\BidOneGateway.Domain\BidOneGateway.Domain.csproj" />
     </ItemGroup>
 
