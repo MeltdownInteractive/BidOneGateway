@@ -28,4 +28,35 @@ public class ErpClient(HttpClient httpClient, ILogger<ErpClient> logger) : IErpC
             throw; 
         }
     }
+    
+    public async Task<ErpProduct?> GetProductByIdAsync(int id)
+    {
+        try
+        {
+            logger.LogInformation("Calling ERP upstream to get product by ID {ProductId}.", id);
+            
+            var response = await httpClient.GetAsync($"erp/products/{id}");
+            
+            if (!response.IsSuccessStatusCode)
+            {
+                if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    logger.LogWarning("Product with ID {ProductId} not found in ERP.", id);
+                    return null;
+                }
+                
+                response.EnsureSuccessStatusCode();
+            }
+            
+            var product = await response.Content.ReadFromJsonAsync<ErpProduct>();
+            logger.LogInformation("Successfully deserialized product ID {ProductId} from ERP.", id);
+            
+            return product;
+        }
+        catch (HttpRequestException ex)
+        {
+            logger.LogError(ex, "The ERP service call for product ID {ProductId} failed after all retries.", id);
+            throw;
+        }
+    }
 }

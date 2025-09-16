@@ -13,8 +13,7 @@ public class ProductOrchestrationService(
     public async Task<IEnumerable<ProductDto>> GetMergedProductsAsync()
     {
         logger.LogInformation("Starting product merge orchestration.");
-
-        // Get critical product data. This will throw if it fails after all retries.
+        
         var erpProducts = await erpClient.GetProductsAsync();
         if (erpProducts.Count == 0)
         {
@@ -32,7 +31,7 @@ public class ProductOrchestrationService(
         var stockResults = await Task.WhenAll(stockLookupTasks);
         logger.LogInformation("Finished fetching all stock levels.");
 
-        // Merge results, returning 0 stock if stock lookup fails
+        // Merge results, return 0 stock if stock lookup fails
         var mergedProducts = erpProducts.Select((product, index) =>
         {
             var stockInfo = stockResults[index];
@@ -47,5 +46,31 @@ public class ProductOrchestrationService(
         
         logger.LogInformation("Successfully merged all product and stock data.");
         return mergedProducts;
+    }
+    
+    public async Task<ProductDto?> GetMergedProductByIdAsync(int id)
+    {
+        logger.LogInformation("Starting orchestration to get merged product for ID {ProductId}.", id);
+        
+        var erpProduct = await erpClient.GetProductByIdAsync(id);
+        
+        if (erpProduct is null)
+        {
+            logger.LogWarning("Orchestration ended: Product with ID {ProductId} not found in ERP.", id);
+            return null;
+        }
+        
+        var warehouseStock = await warehouseClient.GetStockForProductAsync(id);
+        
+        var mergedProduct = new ProductDto
+        {
+            Id = erpProduct.Id,
+            Sku = erpProduct.Sku,
+            Name = erpProduct.Name,
+            StockLevel = warehouseStock?.StockLevel ?? 0
+        };
+        
+        logger.LogInformation("Successfully merged data for product ID {ProductId}.", id);
+        return mergedProduct;
     }
 }

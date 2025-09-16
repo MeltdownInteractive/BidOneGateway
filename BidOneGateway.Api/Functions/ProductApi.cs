@@ -39,11 +39,23 @@ public class ProductApi(IProductOrchestrationService orchestrationService, ILogg
     }
 
     [Function("GetProductByIdV1")]
-    public IActionResult GetProductById(
+    public async Task<IActionResult> GetProductById(
         [HttpTrigger(AuthorizationLevel.Function, "get", Route = "v1/products/{id:int}")] HttpRequest req, int id)
     {
-        // TODO: Implement call to an orchestration service method to get a single merged product.
         logger.LogInformation($"V1/products/{id} GET request received for ID {id}.");
-        return new OkObjectResult(new { id, message = $"Details for product {id}." });
+
+        try
+        {
+            var product = await orchestrationService.GetMergedProductByIdAsync(id);
+
+            return product is not null
+                ? new OkObjectResult(product)
+                : new NotFoundResult();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "A critical error occurred while processing the request for product ID {ProductId}.", id);
+            return new StatusCodeResult(StatusCodes.Status503ServiceUnavailable);
+        }
     }
 }
